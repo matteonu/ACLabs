@@ -46,7 +46,6 @@ def build_dict():
         'command':'corrupt'
     })
     key = bytes.fromhex(response['res'][-32:])
-
     result = {}
     combinations = itertools.product(ALPHABET, repeat=4)
     combinations = tqdm(combinations ,total=len(ALPHABET) ** 4)

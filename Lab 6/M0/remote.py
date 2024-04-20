@@ -30,19 +30,16 @@ def hash_pump(mac, data, append):
     response = json.loads(fd_hashpump.readline())
     return (response['new_hash'], response['new_data'])
 
-
-
-response = run_command({
+def get_message_and_tag():
+    response = run_command({
     "command": "token"
-})
-command_string = bytes.fromhex(response['token']['command_string']).decode()
-mac = bytes.fromhex(response['token']['mac'])
-print(command_string)
-print(mac)
-append = "&command=flag"
-new_hash, new_data = hash_pump(mac.hex(), command_string, append)
-print(bytes.fromhex(new_data))
+    })
+    command_string = bytes.fromhex(response['token']['command_string']).decode()
+    mac = bytes.fromhex(response['token']['mac'])
+    return command_string, mac
 
+command_string, mac = get_message_and_tag()
+new_hash, new_data = hash_pump(mac.hex(), command_string, "&command=flag")
 response = run_command({
     "command": "token_command",
     "token": {

@@ -48,13 +48,13 @@ def get_mac_tag(message: str) -> bytes:
         })
     return bytes.fromhex(response["mac_tag"])
 
-response = run_command({
-    'command': 'flag',
-})
-
-cipher_text = bytes.fromhex(response['ctxt'])
-nonce = bytes.fromhex(response['nonce'])
-plaintext = ""
+def get_ctxt_and_nonce(run_command):
+    response = run_command({
+        'command': 'flag',
+    })
+    cipher_text = bytes.fromhex(response['ctxt'])
+    nonce = bytes.fromhex(response['nonce'])
+    return cipher_text,nonce
 
 def is_valid_encryption(nonce, cipher_text_fragment, mac_tag):
     response = run_command({
@@ -65,15 +65,15 @@ def is_valid_encryption(nonce, cipher_text_fragment, mac_tag):
         })
     return "success" in response and response["success"]
 
+cipher_text, nonce = get_ctxt_and_nonce(run_command)
+plaintext = ""
+
 while (len(plaintext) < len(cipher_text)):
     cipher_text_fragment = cipher_text[:len(plaintext) + 1]
     for character in ALPHABET:
         message = plaintext + character
         assert(len(cipher_text_fragment) == len(message))
         mac_tag = get_mac_tag(message)
-
         if is_valid_encryption(nonce, cipher_text_fragment, mac_tag):
             plaintext += character
-            print(plaintext)
             break
-

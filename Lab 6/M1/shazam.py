@@ -112,20 +112,30 @@ class SHAzam:
         20-byte string.
         """
 
+        self.update_with_final_padding()
+        return self.get_hash()
+
+    def update_with_final_padding(self):
         buffer_binary_length = len(self.buffer) * 8
         message_bit_length = 8 * BLOCK_SIZE_BYTES * self.length + buffer_binary_length
-        zero_padding_length = 447 - buffer_binary_length
-        if zero_padding_length < 0:
-            zero_padding_length += 512
-        padding = '1' + zero_padding_length * '0'
+        padding = self.get_zero_padding(buffer_binary_length)
         encoded_length = int(message_bit_length).to_bytes(length=8, byteorder='big')
         last_blocks = bitstring_to_bytes(padding).__add__(encoded_length)
         self.update(last_blocks)
+
+    def get_hash(self):
         hash_blocks_bytes = [hash_block.to_bytes(WORD_SIZE_BYTES) for hash_block in self.hash]
         result = b''
         for block in hash_blocks_bytes:
             result = result.__add__(block)
         return result
+
+    def get_zero_padding(self, buffer_binary_length):
+        zero_padding_length = 447 - buffer_binary_length
+        if zero_padding_length < 0:
+            zero_padding_length += 512
+        padding = '1' + zero_padding_length * '0'
+        return padding
 
 if __name__ == "__main__":
     sha = SHAzam()
