@@ -1,15 +1,9 @@
-from passlib.hash import argon2
 import json
 import socket
-from string import ascii_letters, digits, printable
-import secrets
-import itertools
-from Crypto.Hash import HMAC, SHA256
+from string import printable
+
 ALPHABET = printable
 from Crypto.Util.number import bytes_to_long, long_to_bytes
-
-
-
 
 # =====================================================================================
 #   Config Variables (Change as needed)
@@ -52,9 +46,6 @@ def get_encrypted_flag() -> int:
     return response
 
 encrypted_flag = get_encrypted_flag()
-print(encrypted_flag)     
-encrypted_flag = get_encrypted_flag()
-print(encrypted_flag)     
 ctxt_int = int(encrypted_flag["encrypted_flag"], 16)
 N = int(encrypted_flag["N"], 16)
 e = int(encrypted_flag["e"], 16)

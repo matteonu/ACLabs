@@ -1,23 +1,15 @@
 import datetime
-import time
-from passlib.hash import argon2
 import json
 import socket
-from string import ascii_letters, digits, printable
-import secrets
-import itertools
-from Crypto.Hash import HMAC, SHA256
+from string import printable
+
 ALPHABET = printable
-from Crypto.Util.number import bytes_to_long, long_to_bytes
-from Crypto.Util import number
-import math
-import numpy as np 
+
+import numpy as np
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
-
-
-
-
+from Crypto.Util import number
+from Crypto.Util.number import bytes_to_long, long_to_bytes
 
 # =====================================================================================
 #   Config Variables (Change as needed)
@@ -35,9 +27,6 @@ HOST = "aclabs.ethz.ch"
 # =====================================================================================
 #   Client Boilerplate (Do not touch, do not look)
 # =====================================================================================
-
-
-BLOCK_SIZE = 16
 
 fd = socket.create_connection(
     (HOST if REMOTE else "localhost", PORT)).makefile("rw")

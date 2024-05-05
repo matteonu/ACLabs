@@ -25,7 +25,6 @@ class SecureRSAServer(CommandServer):
         """Use Numpy to generate a random stream from a specific seed. 
         Because I multiply it by 16 random bytes this must be secure."""
         seed = (seed * self.secret) % 2**32
-        print('seed:', seed)
         numpy.random.seed(seed)
         return lambda n: numpy.random.bytes(n)
 
@@ -33,10 +32,8 @@ class SecureRSAServer(CommandServer):
         """Generates an RSA key. Repeatedly picks p and q, until they are coprime to E"""
         while True:
             t = datetime.datetime.now().second
-            print('t:', t)
             r = random.randint(1, 10)
             p = number.getPrime(1024, randfunc=self.make_random_stream(t))
-            print('p:', p)
             q = number.getPrime(1024, randfunc=self.make_random_stream(t+r))
             if (p-1) % E == 0 or (q-1) % E == 0:
                 continue

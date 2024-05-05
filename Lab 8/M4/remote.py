@@ -1,21 +1,11 @@
-from passlib.hash import argon2
 import json
 import socket
-from string import ascii_letters, digits, printable
-import secrets
-import itertools
-from Crypto.Hash import HMAC, SHA256
+from string import printable
+
 ALPHABET = printable
-from Crypto.Util.number import bytes_to_long, long_to_bytes
+
 from Crypto.Util import number
-import math
-import numpy as np 
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
-
-
-
-
+from Crypto.Util.number import bytes_to_long, long_to_bytes
 
 # =====================================================================================
 #   Config Variables (Change as needed)
@@ -39,6 +29,7 @@ BLOCK_SIZE = 16
 
 fd = socket.create_connection(
     (HOST if REMOTE else "localhost", PORT)).makefile("rw")
+
 
 phonebook = {
     "Matteo": {
@@ -67,42 +58,6 @@ phonebook = {
     },
 }
 
-def run_command(command):
-    """Serialize `command` to JSON and send to the server, then deserialize the response"""
-    fd.write(json.dumps(command) + "\n")
-    fd.flush()
-    return json.loads(fd.readline())
-
-def get_invite(invitee: str) -> dict:
-    response = run_command({"command": "invite", "invitee": invitee})
-    return response
-
-def build_phone_book_with_ctxt() -> dict:
-    phonebook_with_ctxt = {}
-    for name in phonebook.keys():
-        phonebook_with_ctxt[name] = get_invite(name)
-        phonebook_with_ctxt[name]["N"] = phonebook[name]["N"]
-        phonebook_with_ctxt[name]["e"] = phonebook[name]["e"]
-    return phonebook_with_ctxt
-
-def calculate_N(phone_book: dict) -> int:
-    N = 1
-    for name in phone_book:
-        N *= phone_book[name]["N"]
-    return N
-
-def calculate_c_before_mod(phone_book: dict) -> int:
-    N = calculate_N(phone_book)
-    c = 0
-    for name in phone_book:
-        n_i = phone_book[name]["N"]
-        m_i = N//n_i
-        b_i = bytes_to_long(bytes.fromhex(phone_book[name]["ciphertext"]))
-        y_i = number.inverse(m_i, n_i)
-        c += b_i*m_i*y_i
-    c = c % N
-    print(c)
-    return c
 
 def exact_int_root(radicand, k):
     ''' Computes the int root such that root ** k == radicand and root == None if this doesn't exist
@@ -159,6 +114,45 @@ def exact_int_root(radicand, k):
         root_guess = (lower_bound + upper_bound) // 2
     # No more valid guesses exist
     return None
+
+
+def run_command(command):
+    """Serialize `command` to JSON and send to the server, then deserialize the response"""
+    fd.write(json.dumps(command) + "\n")
+    fd.flush()
+    return json.loads(fd.readline())
+
+def get_invite(invitee: str) -> dict:
+    response = run_command({"command": "invite", "invitee": invitee})
+    return response
+
+def build_phone_book_with_ctxt() -> dict:
+    phonebook_with_ctxt = {}
+    for name in phonebook.keys():
+        phonebook_with_ctxt[name] = get_invite(name)
+        phonebook_with_ctxt[name]["N"] = phonebook[name]["N"]
+        phonebook_with_ctxt[name]["e"] = phonebook[name]["e"]
+    return phonebook_with_ctxt
+
+def calculate_N(phone_book: dict) -> int:
+    N = 1
+    for name in phone_book:
+        N *= phone_book[name]["N"]
+    return N
+
+def calculate_c_before_mod(phone_book: dict) -> int:
+    N = calculate_N(phone_book)
+    c = 0
+    for name in phone_book:
+        n_i = phone_book[name]["N"]
+        m_i = N//n_i
+        b_i = bytes_to_long(bytes.fromhex(phone_book[name]["ciphertext"]))
+        y_i = number.inverse(m_i, n_i)
+        c += b_i*m_i*y_i
+    c = c % N
+    print(c)
+    return c
+
     
 phone_book_with_ctxt = build_phone_book_with_ctxt()
 c = calculate_c_before_mod(phone_book_with_ctxt)

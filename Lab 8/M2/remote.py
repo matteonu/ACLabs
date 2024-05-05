@@ -1,18 +1,9 @@
-from passlib.hash import argon2
 import json
 import socket
-from string import ascii_letters, digits, printable
-import secrets
-import itertools
-from Crypto.Hash import HMAC, SHA256
+from string import printable
+
 ALPHABET = printable
 from Crypto.Util.number import bytes_to_long, long_to_bytes
-from Crypto.Util import number
-import math
-
-
-
-
 
 # =====================================================================================
 #   Config Variables (Change as needed)
@@ -37,22 +28,6 @@ BLOCK_SIZE = 16
 fd = socket.create_connection(
     (HOST if REMOTE else "localhost", PORT)).makefile("rw")
 
-
-def run_command(command):
-    """Serialize `command` to JSON and send to the server, then deserialize the response"""
-    fd.write(json.dumps(command) + "\n")
-    fd.flush()
-    return json.loads(fd.readline())
-
-def decrypt_ciphertext(c:int) -> bytes:
-    response = run_command({"command" : "decrypt", "ciphertext":long_to_bytes(c).hex()})
-    if "error" in response:
-        raise ValueError(response["error"])
-    return bytes_to_long(bytes.fromhex(response["res"]))
-
-def get_encrypted_flag() -> int:
-    response = run_command({"command": "encrypted_flag"})
-    return response
 
 def exact_int_root(radicand, k):
     ''' Computes the int root such that root ** k == radicand and root == None if this doesn't exist
@@ -110,16 +85,21 @@ def exact_int_root(radicand, k):
     # No more valid guesses exist
     return None
 
+
+def run_command(command):
+    """Serialize `command` to JSON and send to the server, then deserialize the response"""
+    fd.write(json.dumps(command) + "\n")
+    fd.flush()
+    return json.loads(fd.readline())
+
+
+def get_encrypted_flag() -> int:
+    response = run_command({"command": "encrypted_flag"})
+    return response
+
+
 encrypted_flag = get_encrypted_flag()
-print(encrypted_flag) 
-encrypted_flag = get_encrypted_flag()
-print(encrypted_flag) 
 ctxt = int(encrypted_flag["ctxt"])
 cubic_root = exact_int_root(ctxt, 3)
-print('ctxt', ctxt)
-print('cubic_root', cubic_root)
-print('cubic_root**3', cubic_root**3)
-print('difference', ctxt - cubic_root**3)
-assert pow(cubic_root, 3) == ctxt
 print(long_to_bytes(cubic_root))
 

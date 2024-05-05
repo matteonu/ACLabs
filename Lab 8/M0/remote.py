@@ -1,11 +1,9 @@
-from passlib.hash import argon2
 import json
 import socket
-from string import ascii_letters, digits, printable
-import secrets
-import itertools
-from Crypto.Hash import HMAC, SHA256
-from rsa import rsa_key_gen, rsa_enc, rsa_dec
+from string import printable
+
+from rsa import rsa_dec, rsa_key_gen
+
 ALPHABET = printable
 
 
@@ -41,14 +39,14 @@ def run_command(command):
     return json.loads(fd.readline())
 
 def set_parameters(N:int, e:int, d:int, p:int, q:int) -> bytes:
-        print(run_command({
+        run_command({
             "command": "set_parameters",
             "N": N,
             "e": e,
             "d": d,
             "p": p,
             "q": q
-        }))
+        })
 
 def get_encrypted_flag() -> int:
     response = run_command({"command": "encrypted_flag"})
