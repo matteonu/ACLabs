@@ -73,8 +73,7 @@ def get_message_tag_pair(run_command):
     return command_string,mac
 
 command_string, mac = get_message_tag_pair(run_command)
-new_message, new_tag = extend_message(command_string,  b"&command=flag", mac)
-
+new_message, new_tag = extend_message(command_string, b"&command=flag", mac)
 response = run_command({
     "command": "authenticated_command",
     "authenticated_command":  new_message.hex(),

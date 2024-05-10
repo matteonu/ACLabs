@@ -56,7 +56,7 @@ def set_response_key(p: int, g: int, y: int):
     return response["res"]
 
 own_elgamal_key = ElGamal.generate(256, os.urandom)
-set_response_key(own_elgamal_key.p, own_elgamal_key.g, own_elgamal_key.y)
+print(set_response_key(own_elgamal_key.p, own_elgamal_key.g, own_elgamal_key.y))
 elgamal_key = ElGamal.construct(get_public_key())
 encrypted_command = ElGamalImpl.encrypt(elgamal_key, b'backdoor')
 encrypted_response = send_encrypted_message(encrypted_command[0], encrypted_command[1])

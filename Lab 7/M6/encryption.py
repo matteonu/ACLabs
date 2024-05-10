@@ -71,13 +71,20 @@ class CBC_HMAC():
 
         return (iv + ct) + tag
     
-    def decrypt(self, ctxt: bytes):
+    def decrypt(self, ctxt: bytes, add_data: bytes = b''):
         iv, ctxt, tag = ctxt[:self.block_len], ctxt[self.block_len:-self.tag_len], ctxt[-self.tag_len:]
         cbc = AES.new(key = self.enc_key, mode = AES.MODE_CBC, iv = iv)
-        print(len(ctxt))
         padded_ptxt = cbc.decrypt(ctxt)
         ptxt = self._remove_pt_padding(padded_ptxt)
-        print(ptxt)
+        mac = HMAC.new(key = self.mac_key, digestmod=SHA256)
+        al = self.computeAL(add_data)
+        mac.update(add_data)
+        mac.update(iv + ctxt)
+        mac.update(al)
+        if not mac.digest() == tag:
+            raise ValueError("Bad MAC")
+        return ptxt
+
 
     
     def computeAL(self, A: bytes):
